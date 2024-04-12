@@ -10,10 +10,10 @@
 all: server browser
 
 server: server.cpp net_util.hpp net_util.cpp
-	g++ -std=c++11 server.cpp net_util.cpp -o server -pthread
+	g++ -std=c++11 server.cpp net_util.cpp -o server.exe -pthread
 
 browser: browser.cpp net_util.hpp net_util.cpp
-	g++ -std=c++11 browser.cpp net_util.cpp -o browser -pthread
+	g++ -std=c++11 browser.cpp net_util.cpp -o browser.exe -pthread
 
 clean:
 	rm -f *.o server browser
