@@ -79,8 +79,13 @@ void read_user_input(char message[]) {
  * The file path of the cookie is stored in COOKIE_PATH.
  */
 void load_cookie() {
-    // TODO
-    session_id = -1;
+    FILE *file = fopen(COOKIE_PATH, "r");
+    if (file != NULL) {
+        fscanf(file, "%d", &session_id);
+        fclose(file);
+    } else {
+        session_id = -1; // If cookie file doesn't exist, set session ID to -1
+    }
 }
 
 /**
@@ -88,7 +93,13 @@ void load_cookie() {
  * The file path of the cookie is stored in COOKIE_PATH.
  */
 void save_cookie() {
-    // TODO
+    FILE *file = fopen(COOKIE_PATH, "w");
+    if (file != NULL) {
+        fprintf(file, "%d\n", session_id);
+        fclose(file);
+    } else {
+        perror("Failed to save cookie");
+    }
 }
 
 /**
