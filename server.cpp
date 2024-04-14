@@ -239,7 +239,19 @@ void get_session_file_path(int session_id, char path[]) {
  * Use get_session_file_path() to get the file path for each session.
  */
 void load_all_sessions() {
-    // TODO
+    char path[SESSION_PATH_LEN];
+
+    for (int i = 0; i < NUM_SESSIONS; ++i) {
+        get_session_file_path(i, path);
+
+        // Check if the session file exists
+        FILE *session_file = fopen(path, "r");
+        if (session_file != NULL) {
+            // Read session data from file and load into session_list[i]
+            fread(&session_list[i], sizeof(session_t), 1, session_file);
+            fclose(session_file);
+        }
+    }
 }
 
 /**
@@ -249,7 +261,18 @@ void load_all_sessions() {
  * @param session_id the session ID
  */
 void save_session(int session_id) {
-    // TODO
+    char path[SESSION_PATH_LEN];
+    get_session_file_path(session_id, path);
+
+    // Open the session file for writing
+    FILE *session_file = fopen(path, "w");
+    if (session_file != NULL) {
+        // Write session data to file
+        fwrite(&session_list[session_id], sizeof(session_t), 1, session_file);
+        fclose(session_file);
+    } else {
+        printf("Failed to save session %d\n", session_id);
+    }
 }
 
 /**
