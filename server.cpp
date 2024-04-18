@@ -47,8 +47,8 @@ typedef struct session_struct {
 } session_t;
 
 static browser_t browser_list[NUM_BROWSER];                             // Stores the information of all browsers.
-// static session_t session_list[NUM_SESSIONS];                            // Stores the information of all sessions.
-static unordered_map<int, session_t> session_list[NUM_SESSIONS]; //v2
+static session_t session_list[NUM_SESSIONS];                            // Stores the information of all sessions.
+// static unordered_map<int, session_t> session_list[NUM_SESSIONS]; //v2
 static pthread_mutex_t browser_list_mutex = PTHREAD_MUTEX_INITIALIZER;  // A mutex lock for the browser list.
 static pthread_mutex_t session_list_mutex = PTHREAD_MUTEX_INITIALIZER;  // A mutex lock for the session list.
 
@@ -162,7 +162,7 @@ bool process_message(int session_id, const char message[]) {
     //Task 3.1: Error handling for arithmetic
 
     bool eqflag = false; // checking to make sure there's an equals somewhere
-    for (int i = 0; i < length(message); i++) {
+    for (int i = 0; i < message.length(); i++) {
     if (message[i] == '=') {eqflag = true;}; }
     if (eqflag == false) {return false;} // no equals means the function must be wrong somehow
 
@@ -173,11 +173,11 @@ bool process_message(int session_id, const char message[]) {
     // Processes the result variable.
     token = strtok(data, " ");
     result_idx = token[0] - 'a';
-    if !(0 <= result_idx < 26) {return false;} //variable being assigned isn't a-z (lowercase) (might be int, might be capitalized)
+    if (!(0 <= result_idx < 26)) {return false;} //variable being assigned isn't a-z (lowercase) (might be int, might be capitalized)
 
     // Processes "=".
     token = strtok(NULL, " "); // strtok 'remembers' last string used ('data')
-    if !(token[0] == '=' && token.length() == 1) {return false;} // if the second part isn't '=' we have a problem
+    if (!token[0] == '=' || !token.length() == 1) {return false;} // if the second part isn't '=' we have a problem
 
     // Processes the first variable/value.
     token = strtok(NULL, " "); // if it's a number...
@@ -185,7 +185,7 @@ bool process_message(int session_id, const char message[]) {
         first_value = strtod(token, NULL);
     } else { // if not int then var we check to see if it's a regestered variable
         int first_idx = token[0] - 'a';
-        if !(session_list[session_id].variables[first_idx]) {return false;}  //var not regestered
+        if (!session_list[session_id].variables[first_idx]) {return false;}  //var not regestered
         first_value = session_list[session_id].values[first_idx];
     } 
 
@@ -198,7 +198,7 @@ bool process_message(int session_id, const char message[]) {
     }
     else {
         symbol = token[0];
-        if !(symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/') {return false;} //operation unclear
+        if (!(symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/')) {return false;} //operation unclear
     }
     
     // Processes the second variable/value.
@@ -208,7 +208,7 @@ bool process_message(int session_id, const char message[]) {
         second_value = strtod(token, NULL);
     } else {
         int second_idx = token[0] - 'a';
-        if !(session_list[session_id].values[second_idx]) {return false;} //second var doesn't exist
+        if (!session_list[session_id].values[second_idx]) {return false;} //second var doesn't exist
         second_value = session_list[session_id].values[second_idx];
     }
 
