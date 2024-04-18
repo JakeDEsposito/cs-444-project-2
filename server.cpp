@@ -78,7 +78,7 @@ int register_browser(int browser_socket_fd);
 // processing the message received,
 // broadcasting the update to all browsers with the same session ID,
 // and backing up the session on the disk.
-void browser_handler(int browser_socket_fd);
+void *browser_handler(void *browser_socket_fd);
 
 // Starts the server.
 // Sets up the connection,
@@ -322,7 +322,10 @@ int register_browser(int browser_socket_fd) {
  *
  * @param browser_socket_fd the socket file descriptor of the browser connected
  */
-void browser_handler(int browser_socket_fd) {
+ // Changed signature of browser_handler for Task 2.1
+void *browser_handler(void *brow_socket_fd) {
+    int browser_socket_fd = *((int *) brow_socket_fd);
+
     int browser_id;
 
     browser_id = register_browser(browser_socket_fd);
@@ -410,7 +413,10 @@ void start_server(int port) {
         }
 
         // Starts the handler for the new browser.
-        browser_handler(browser_socket_fd);
+        // Thread for Task 2.1
+        pthread_t thread_id;
+        pthread_create(&thread_id, NULL, browser_handler, (void *) &browser_socket_fd);
+        // browser_handler(browser_socket_fd);
     }
 
     // Closes the socket.
