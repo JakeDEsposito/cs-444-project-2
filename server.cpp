@@ -153,7 +153,7 @@ bool is_str_numeric(const char str[]) {
  * @return a boolean that determines if the given message is valid
  */
 bool process_message(int session_id, const char message[]) {
-    char *token;
+    /*char *token;
     int result_idx;
     double first_value;
     char symbol;
@@ -231,6 +231,7 @@ bool process_message(int session_id, const char message[]) {
     }
 
     return true;
+    */
 }
 
 /**
@@ -318,13 +319,18 @@ int register_browser(int browser_socket_fd) {
     } while (browser_list[random].in_use && counter <= NUM_BROWSER)
     
     int browser_id;
+
+    // Task 2 #2 Locks/Unlocks at Critical Sections
     for (int i = 0; i < NUM_BROWSER; ++i) {
+        pthread_mutex_lock(&browser_list_mutex);
         if (!browser_list[i].in_use) {
             browser_id = i;
             browser_list[browser_id].in_use = true;
             browser_list[browser_id].socket_fd = browser_socket_fd;
+            pthread_mutex_unlock(&browser_list_mutex);
             break;
         }
+        pthread_mutex_unlock(&browser_list_mutex);
     }
 
     char message[BUFFER_LEN];
@@ -333,14 +339,19 @@ int register_browser(int browser_socket_fd) {
     int session_id = strtol(message, NULL, 10);
     if (session_id == -1) {
         for (int i = 0; i < NUM_SESSIONS; ++i) {
+            pthread_mutex_lock(&session_list_mutex);
             if (!session_list[i].in_use) {
                 session_id = i;
                 session_list[session_id].in_use = true;
+                pthread_mutex_unlock(&session_list_mutex);
                 break;
             }
+            pthread_mutex_unlock(&session_list_mutex);
         }
     }
+    pthread_mutex_lock(&browser_list_mutex);
     browser_list[browser_id].session_id = session_id;
+    pthread_mutex_unlock(&browser_list_mutex);
 
     sprintf(message, "%d", session_id);
     send_message(browser_socket_fd, message);
@@ -381,7 +392,7 @@ void *browser_handler(void *brow_socket_fd) {
             browser_list[browser_id].in_use = false;
             pthread_mutex_unlock(&browser_list_mutex);
             printf("Browser #%d exited.\n", browser_id);
-            return;
+            return NULL;
         }
 
         if (message[0] == '\0') {
@@ -390,7 +401,7 @@ void *browser_handler(void *brow_socket_fd) {
 
         bool data_valid = process_message(session_id, message);
         if (!data_valid) {
-            broadcast(session_id, "Invalid Input!")
+            broadcast(session_id, "Invalid Input!");
             // Send the error message to the browser.
             continue;
         }
