@@ -308,17 +308,17 @@ void save_session(int session_id) {
  * @return the ID for the browser
  */
 int register_browser(int browser_socket_fd) {
-    int counter = 1;
+    // int counter = 1;
 
-    do { ++counter;
-        int random = rand() % 128 + 1 //random number between 1-128
-        if (browser_list[random].in_use) {continue;} // if it's already occupied skip
+    // do { ++counter;
+    //     int random = rand() % 128 + 1 //random number between 1-128
+    //     if (browser_list[random].in_use) {continue;} // if it's already occupied skip
 
-        browser_list[random].in_use = true; //
-        browser_list[browser_id].socket_fd = browser_socket_fd;
-    } while (browser_list[random].in_use && counter <= NUM_BROWSER)
+    //     browser_list[random].in_use = true; //
+    //     browser_list[browser_id].socket_fd = browser_socket_fd;
+    // } while (browser_list[random].in_use && counter <= NUM_BROWSER);
     
-    int browser_id;
+    // int browser_id;
 
     // Task 2 #2 Locks/Unlocks at Critical Sections
     for (int i = 0; i < NUM_BROWSER; ++i) {
