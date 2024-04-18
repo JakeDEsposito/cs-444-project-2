@@ -48,7 +48,7 @@ void register_server();
 
 // Listens to the server.
 // Keeps receiving and printing the messages from the server.
-void server_listener();
+void *server_listener(void*);
 
 // Starts the browser.
 // Sets up the connection, start the listener thread,
@@ -118,10 +118,13 @@ void register_server() {
  * Listens to the server; keeps receiving and printing the messages from the server in a while loop
  * if the browser is on.
  */
-void server_listener() {
-    char message[BUFFER_LEN];
-    receive_message(server_socket_fd, message);
-    puts(message);
+ // Task 2 #3, wrapped existing code within a while loop, changed signature
+void *server_listener(void*) {
+    while (browser_on) {
+        char message[BUFFER_LEN];
+        receive_message(server_socket_fd, message);
+        puts(message);
+    }
 }
 
 /**
@@ -162,11 +165,17 @@ void start_browser(const char host_ip[], int port) {
     save_cookie();
 
     // Main loop to read in the user's input and send it out.
+    // Task 2 #3 created thread to run server_listener()
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, server_listener, NULL);
+    // Task 2 #3 moved server_listener() outside of loop
+    // server_listener();
     while (browser_on) {
         char message[BUFFER_LEN];
         read_user_input(message);
         send_message(server_socket_fd, message);
-        server_listener();
+        // Task 2 #3, commented out server_listener()
+        // server_listener();
     }
 
     // Closes the socket.
