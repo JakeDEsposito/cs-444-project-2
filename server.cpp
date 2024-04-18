@@ -154,6 +154,8 @@ bool process_message(int session_id, const char message[]) {
     char symbol;
     double second_value;
 
+    //Task 3.1: Error handling for arithmetic
+
     bool eqflag = false; // checking to make sure there's an equals somewhere
     for (int i = 0; i < length(message); i++) {
     if (message[i] == '=') {eqflag = true;}; }
