@@ -154,46 +154,62 @@ bool process_message(int session_id, const char message[]) {
     char symbol;
     double second_value;
 
+    bool eqflag = false; // checking to make sure there's an equals somewhere
+    for (int i = 0; i < length(message); i++) {
+    if (message[i] == '=') {eqflag = true;}; }
+    if (eqflag == false) {return false;} // no equals means the function must be wrong somehow
+
     // Makes a copy of the string since strtok() will modify the string that it is processing.
     char data[BUFFER_LEN];
-    strcpy(data, message);
+    strcpy(data, message); // 'data' gets saved as the message, which we'll be modifying
 
     // Processes the result variable.
     token = strtok(data, " ");
     result_idx = token[0] - 'a';
+    if !(0 <= result_idx < 26) {return false;} //variable being assigned isn't a-z (lowercase) (might be int, might be capitalized)
 
     // Processes "=".
-    token = strtok(NULL, " ");
+    token = strtok(NULL, " "); // strtok 'remembers' last string used ('data')
+    if !(token[0] == '=' && token.length() == 1) {return false;} // if the second part isn't '=' we have a problem
 
     // Processes the first variable/value.
-    token = strtok(NULL, " ");
+    token = strtok(NULL, " "); // if it's a number...
     if (is_str_numeric(token)) {
         first_value = strtod(token, NULL);
-    } else {
+    } else { // if not int then var we check to see if it's a regestered variable
         int first_idx = token[0] - 'a';
+        if !(session_list[session_id].variables[first_idx]) {return false;}  //var not regestered
         first_value = session_list[session_id].values[first_idx];
-    }
+    } 
 
     // Processes the operation symbol.
     token = strtok(NULL, " ");
-    if (token == NULL) {
+    if (token == NULL) { // no function just assign, if we've gotten here we know assignable exists, so we just tell it that
         session_list[session_id].variables[result_idx] = true;
         session_list[session_id].values[result_idx] = first_value;
         return true;
     }
-    symbol = token[0];
-
+    else {
+        symbol = token[0];
+        if !(symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/') {return false;} //operation unclear
+    }
+    
     // Processes the second variable/value.
     token = strtok(NULL, " ");
+    if (token == NULL) {return false;} // second value missing
     if (is_str_numeric(token)) {
         second_value = strtod(token, NULL);
     } else {
         int second_idx = token[0] - 'a';
+        if !(session_list[session_id].values[second_idx]) {return false;} //second var doesn't exist
         second_value = session_list[session_id].values[second_idx];
     }
 
     // No data should be left over thereafter.
     token = strtok(NULL, " ");
+    if (token != NULL) {return false;} // there shouldn't be anything extra afterwards
+
+    //if we're here then the code must be <val> = <first val> <opp> <second val>, with no errors
 
     session_list[session_id].variables[result_idx] = true;
 
@@ -354,6 +370,7 @@ void browser_handler(int browser_socket_fd) {
 
         bool data_valid = process_message(session_id, message);
         if (!data_valid) {
+            broadcast(session_id, "Invalid Input!")
             // Send the error message to the browser.
             continue;
         }
