@@ -24,6 +24,10 @@
 #include <sys/stat.h>
 #include <netinet/in.h>
 
+//added for Task 3.2 hashmap
+#include <unordered_map>
+using namespace std; // needed otherwise unordered_map doesn't work
+
 #define NUM_VARIABLES 26
 #define NUM_SESSIONS 128
 #define NUM_BROWSER 128
@@ -43,7 +47,8 @@ typedef struct session_struct {
 } session_t;
 
 static browser_t browser_list[NUM_BROWSER];                             // Stores the information of all browsers.
-static session_t session_list[NUM_SESSIONS];                            // Stores the information of all sessions.
+// static session_t session_list[NUM_SESSIONS];                            // Stores the information of all sessions.
+static unordered_map<int, session_t> session_list[NUM_SESSIONS]; //v2
 static pthread_mutex_t browser_list_mutex = PTHREAD_MUTEX_INITIALIZER;  // A mutex lock for the browser list.
 static pthread_mutex_t session_list_mutex = PTHREAD_MUTEX_INITIALIZER;  // A mutex lock for the session list.
 
@@ -260,6 +265,7 @@ void load_all_sessions() {
     char path[SESSION_PATH_LEN];
 
     for (int i = 0; i < NUM_SESSIONS; ++i) {
+
         get_session_file_path(i, path);
 
         // Check if the session file exists
@@ -301,8 +307,17 @@ void save_session(int session_id) {
  * @return the ID for the browser
  */
 int register_browser(int browser_socket_fd) {
-    int browser_id;
+    int counter = 1;
 
+    do { ++counter;
+        int random = rand() % 128 + 1 //random number between 1-128
+        if (browser_list[random].in_use) {continue;} // if it's already occupied skip
+
+        browser_list[random].in_use = true; //
+        browser_list[browser_id].socket_fd = browser_socket_fd;
+    } while (browser_list[random].in_use && counter <= NUM_BROWSER)
+    
+    int browser_id;
     for (int i = 0; i < NUM_BROWSER; ++i) {
         if (!browser_list[i].in_use) {
             browser_id = i;
