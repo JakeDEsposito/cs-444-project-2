@@ -173,6 +173,7 @@ bool process_message(int session_id, const char message[]) {
 
     // Processes "="
     token = strtok(NULL, " "); // strtok 'remembers' last string used ('data')
+    if (token == NULL) {return false;} // just says variable names
     if (!(token[0] == '=' && strlen(token) == 1)) {return false;} // if the second part isn't '=' we have a problem
 
     // Processes the first variable/value.
@@ -328,6 +329,7 @@ int register_browser(int browser_socket_fd) {
 
     //WIP Task 3.2: implementing random IDs
     // int counter = 1; //since random is random there's no way to tell what we've already covered
+    int lis[NUM_SESSIONS]
 
     // pthread_mutex_lock(&session_list_mutex);
     // do { ++counter;
