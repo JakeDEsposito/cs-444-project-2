@@ -329,7 +329,7 @@ int register_browser(int browser_socket_fd) {
 
     //WIP Task 3.2: implementing random IDs
     // int counter = 1; //since random is random there's no way to tell what we've already covered
-    int lis[NUM_SESSIONS]
+    //int lis[NUM_SESSIONS]
 
     // pthread_mutex_lock(&session_list_mutex);
     // do { ++counter;
