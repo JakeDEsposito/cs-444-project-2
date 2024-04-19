@@ -161,30 +161,29 @@ bool process_message(int session_id, const char message[]) {
 
     //Task 3.1: Error handling for arithmetic
 
-    bool eqflag = false; // checking to make sure there's an equals somewhere
-    for (int i = 0; i < strlen(message); i++) {
-    if (message[i] == '=') {eqflag = true;}; }
-    if (eqflag == false) {return false;} // no equals means the function must be wrong somehow
-
     // Makes a copy of the string since strtok() will modify the string that it is processing.
     char data[BUFFER_LEN];
     strcpy(data, message); // 'data' gets saved as the message, which we'll be modifying
 
     // Processes the result variable.
     token = strtok(data, " ");
+    if (strlen(token) != 1) {return false;} //variable not singlechar
     result_idx = token[0] - 'a';
     if (!(0 <= result_idx < 26)) {return false;} //variable being assigned isn't a-z (lowercase) (might be int, might be capitalized)
 
-    // Processes "=".
+    // Processes "="
     token = strtok(NULL, " "); // strtok 'remembers' last string used ('data')
-    if (!token[0] == '=' || !strlen(token) == 1) {return false;} // if the second part isn't '=' we have a problem
+    if (!(token[0] == '=' && strlen(token) == 1)) {return false;} // if the second part isn't '=' we have a problem
 
     // Processes the first variable/value.
     token = strtok(NULL, " "); // if it's a number...
+    if (token == NULL) {return false;} //missing entry check
     if (is_str_numeric(token)) {
         first_value = strtod(token, NULL);
     } else { // if not int then var we check to see if it's a regestered variable
+        if (strlen(token) != 1) {return false;} //variable too long
         int first_idx = token[0] - 'a';
+        if (!(0 <= first_idx < 26)) {return false;} // not a lowercase
         if (!session_list[session_id].variables[first_idx]) {return false;}  //var not regestered
         first_value = session_list[session_id].values[first_idx];
     } 
@@ -207,7 +206,9 @@ bool process_message(int session_id, const char message[]) {
     if (is_str_numeric(token)) {
         second_value = strtod(token, NULL);
     } else {
+        if (strlen(token) != 1) {return false;} //variable too long
         int second_idx = token[0] - 'a';
+        if (!(0 <= second_idx < 26)) {return false;} // not a lowercase
         if (!session_list[session_id].values[second_idx]) {return false;} //second var doesn't exist
         second_value = session_list[session_id].values[second_idx];
     }
