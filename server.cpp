@@ -153,7 +153,7 @@ bool is_str_numeric(const char str[]) {
  * @return a boolean that determines if the given message is valid
  */
 bool process_message(int session_id, const char message[]) {
-    /*char *token;
+    char *token;
     int result_idx;
     double first_value;
     char symbol;
@@ -231,7 +231,6 @@ bool process_message(int session_id, const char message[]) {
     }
 
     return true;
-    */
 }
 
 /**
@@ -308,17 +307,7 @@ void save_session(int session_id) {
  * @return the ID for the browser
  */
 int register_browser(int browser_socket_fd) {
-    // int counter = 1;
-
-    // do { ++counter;
-    //     int random = rand() % 128 + 1 //random number between 1-128
-    //     if (browser_list[random].in_use) {continue;} // if it's already occupied skip
-
-    //     browser_list[random].in_use = true; //
-    //     browser_list[browser_id].socket_fd = browser_socket_fd;
-    // } while (browser_list[random].in_use && counter <= NUM_BROWSER);
-    
-    // int browser_id;
+    int browser_id;
 
     // Task 2 #2 Locks/Unlocks at Critical Sections
     for (int i = 0; i < NUM_BROWSER; ++i) {
@@ -336,6 +325,21 @@ int register_browser(int browser_socket_fd) {
     char message[BUFFER_LEN];
     receive_message(browser_socket_fd, message);
 
+    //WIP Task 3.2: implementing random IDs
+    // int counter = 1; //since random is random there's no way to tell what we've already covered
+
+    // pthread_mutex_lock(&session_list_mutex);
+    // do { ++counter;
+    //     int random = rand() % 128 + 1 //random number between 1-128
+    //     if (browser_list[random].in_use) {
+    //         counter--; //we tried something already in use, so we didn't really check a new entry
+    //         continue;} // if it's already occupied skip
+
+    //     browser_list[random].in_use = true; // if browser slot empty we take it
+    //     browser_list[random].socket_fd = browser_socket_fd;
+    // } while (counter <= NUM_BROWSER); // we 
+    // pthread_mutex_unlock(&session_list_mutex);
+    
     int session_id = strtol(message, NULL, 10);
     if (session_id == -1) {
         for (int i = 0; i < NUM_SESSIONS; ++i) {
