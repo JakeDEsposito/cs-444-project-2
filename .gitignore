@@ -1,2 +1,9 @@
-server.exe
-browser.exe
+# Executables
+server
+browser
+
+# Cookies
+browser.cookie
+
+# Session Data
+sessions/*.dat

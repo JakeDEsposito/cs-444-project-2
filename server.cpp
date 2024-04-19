@@ -23,9 +23,9 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <netinet/in.h>
-
-//added for Task 3.2 hashmap
 #include <unordered_map>
+#include <vector>
+
 using namespace std; // needed otherwise unordered_map doesn't work
 
 #define NUM_VARIABLES 26
@@ -47,8 +47,8 @@ typedef struct session_struct {
 } session_t;
 
 static browser_t browser_list[NUM_BROWSER];                             // Stores the information of all browsers.
-static session_t session_list[NUM_SESSIONS];                            // Stores the information of all sessions.
-// static unordered_map<int, session_t> session_list[NUM_SESSIONS]; //v2
+static unordered_map<int, session_t> session_list;                      // Stores the information of all sessions.
+static vector<int> used_session_ids;
 static pthread_mutex_t browser_list_mutex = PTHREAD_MUTEX_INITIALIZER;  // A mutex lock for the browser list.
 static pthread_mutex_t session_list_mutex = PTHREAD_MUTEX_INITIALIZER;  // A mutex lock for the session list.
 
@@ -327,35 +327,15 @@ int register_browser(int browser_socket_fd) {
     char message[BUFFER_LEN];
     receive_message(browser_socket_fd, message);
 
-    //WIP Task 3.2: implementing random IDs
-    // int counter = 1; //since random is random there's no way to tell what we've already covered
-    //int lis[NUM_SESSIONS]
+    int session_id;
 
-    // pthread_mutex_lock(&session_list_mutex);
-    // do { ++counter;
-    //     int random = rand() % 128 + 1 //random number between 1-128
-    //     if (browser_list[random].in_use) {
-    //         counter--; //we tried something already in use, so we didn't really check a new entry
-    //         continue;} // if it's already occupied skip
+    pthread_mutex_lock(&session_list_mutex);
+    do {
+        session_id = rand();
+    } while (session_list[session_id].in_use);
 
-    //     browser_list[random].in_use = true; // if browser slot empty we take it
-    //     browser_list[random].socket_fd = browser_socket_fd;
-    // } while (counter <= NUM_BROWSER); // we 
-    // pthread_mutex_unlock(&session_list_mutex);
-    
-    int session_id = strtol(message, NULL, 10);
-    if (session_id == -1) {
-        for (int i = 0; i < NUM_SESSIONS; ++i) {
-            pthread_mutex_lock(&session_list_mutex);
-            if (!session_list[i].in_use) {
-                session_id = i;
-                session_list[session_id].in_use = true;
-                pthread_mutex_unlock(&session_list_mutex);
-                break;
-            }
-            pthread_mutex_unlock(&session_list_mutex);
-        }
-    }
+    pthread_mutex_unlock(&session_list_mutex);
+
     pthread_mutex_lock(&browser_list_mutex);
     browser_list[browser_id].session_id = session_id;
     pthread_mutex_unlock(&browser_list_mutex);
