@@ -10,7 +10,7 @@
 all: server browser
 
 server: server.cpp net_util.hpp net_util.cpp
-	g++ -std=c++11 server.cpp net_util.cpp -o server -pthread
+	g++ -std=c++17 server.cpp net_util.cpp -o server -pthread
 
 browser: browser.cpp net_util.hpp net_util.cpp
 	g++ -std=c++11 browser.cpp net_util.cpp -o browser -pthread

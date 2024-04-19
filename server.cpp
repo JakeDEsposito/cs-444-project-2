@@ -25,11 +25,11 @@
 #include <netinet/in.h>
 #include <unordered_map>
 #include <vector>
+#include <filesystem>
 
 using namespace std; // needed otherwise unordered_map doesn't work
 
 #define NUM_VARIABLES 26
-#define NUM_SESSIONS 128
 #define NUM_BROWSER 128
 #define DATA_DIR "./sessions"
 #define SESSION_PATH_LEN 128
@@ -264,18 +264,22 @@ void get_session_file_path(int session_id, char path[]) {
  * Use get_session_file_path() to get the file path for each session.
  */
 void load_all_sessions() {
-    char path[SESSION_PATH_LEN];
+    for (const auto & entry : filesystem::directory_iterator(DATA_DIR)) {
+        string fullPath = entry.path().string();
 
-    for (int i = 0; i < NUM_SESSIONS; ++i) {
+        string subpath = fullPath.substr(((string)DATA_DIR).size());
+        int filetypeIndex = subpath.rfind(".dat");
 
-        get_session_file_path(i, path);
+        if (filetypeIndex != -1) {
+            int session_id = stoi(subpath.substr(8, filetypeIndex - 8));
 
-        // Check if the session file exists
-        FILE *session_file = fopen(path, "r");
-        if (session_file != NULL) {
-            // Read session data from file and load into session_list[i]
-            fread(&session_list[i], sizeof(session_t), 1, session_file);
-            fclose(session_file);
+            // Check if the session file exists
+            FILE *session_file = fopen(subpath.c_str(), "r");
+            if (session_file != NULL) {
+                // Read session data from file and load into session_list[i]
+                fread(&session_list[session_id], sizeof(session_t), 1, session_file);
+                fclose(session_file);
+            }
         }
     }
 }
