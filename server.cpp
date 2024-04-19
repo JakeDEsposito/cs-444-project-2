@@ -162,7 +162,7 @@ bool process_message(int session_id, const char message[]) {
     //Task 3.1: Error handling for arithmetic
 
     bool eqflag = false; // checking to make sure there's an equals somewhere
-    for (int i = 0; i < message.length(); i++) {
+    for (int i = 0; i < strlen(message); i++) {
     if (message[i] == '=') {eqflag = true;}; }
     if (eqflag == false) {return false;} // no equals means the function must be wrong somehow
 
@@ -177,7 +177,7 @@ bool process_message(int session_id, const char message[]) {
 
     // Processes "=".
     token = strtok(NULL, " "); // strtok 'remembers' last string used ('data')
-    if (!token[0] == '=' || !token.length() == 1) {return false;} // if the second part isn't '=' we have a problem
+    if (!token[0] == '=' || !strlen(token) == 1) {return false;} // if the second part isn't '=' we have a problem
 
     // Processes the first variable/value.
     token = strtok(NULL, " "); // if it's a number...
