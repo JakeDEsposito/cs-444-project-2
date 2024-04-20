@@ -279,6 +279,8 @@ void load_all_sessions() {
                 // Read session data from file and load into session_list[i]
                 fread(&session_list[session_id], sizeof(session_t), 1, session_file);
                 fclose(session_file);
+
+                used_session_ids.push_back(session_id);
             }
         }
     }
