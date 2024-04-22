@@ -271,15 +271,17 @@ void load_all_sessions() {
         int filetypeIndex = subpath.rfind(".dat");
 
         if (filetypeIndex != -1) {
-            int session_id = stoi(subpath.substr(8, filetypeIndex - 8));
-
             // Check if the session file exists
             FILE *session_file = fopen(subpath.c_str(), "r");
             if (session_file != NULL) {
-                // Read session data from file and load into session_list[i]
+                // Get the session id
+                int session_id = stoi(subpath.substr(8, filetypeIndex - 8));
+
+                // Read session data from file and load into session_list[session id]
                 fread(&session_list[session_id], sizeof(session_t), 1, session_file);
                 fclose(session_file);
 
+                // Add the session id to the list of used session ids
                 used_session_ids.push_back(session_id);
             }
         }
